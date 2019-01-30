@@ -2,7 +2,7 @@ CC = mpicc
 
 CFLAGS = -g -Wall
 
-OBJECTS = 
+OBJECTS = jacobi.o prog.o poisson.o utils.o
 
 prog: $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)

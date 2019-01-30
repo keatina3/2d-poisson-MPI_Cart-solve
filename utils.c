@@ -15,9 +15,9 @@ int decomp1d(int n, int size, int rank, int *s, int *e){
     return MPI_SUCCESS;
 }
 
-int decomp2d(int nx, int ny, int xprocs, int ypocs, int* coords int *u, int *b, int *r, int *l){
-    decomp1d(nx, xprocs, coords[0], l, r);
-    decomp1d(ny, yprocs, coords[1], b, u);
+int decomp2d(int nx, int ny, int xprocs, int ypocs, int* coords int *ys, int *ye, int *xs, int *xe){
+    decomp1d(nx, xprocs, coords[0], xs, xe);
+    decomp1d(ny, yprocs, coords[1], ys, ye);
 
     return MPI_SUCCESS;
 }
@@ -28,11 +28,15 @@ void init_arr(int n, int m, double *x, double **x_ptr){
 		x_ptr[i] = &x[i*m];
 }
 
-void init_range(double **unew, double **uold, double **f, int u, int b, int r, int l,
+void init_range(double **unew, double **uold, double **f, int xs, int xe, int ys, int ye,
 	double (*lbound)(int, int, int, int),
 	double (*rbound)(int, int, int, int),
 	double (*ubound)(int, int, int, int),
 	double (*bbound)(int, int, int, int))
 {	
+	int i,j;
 
+	for(i=(xs-1);i<=(e+1);i++){
+		uold[i][0] = dbound(i,0,
+	}
 }
