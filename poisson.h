@@ -4,7 +4,7 @@
 #define FD_LX 0.0
 #define FD_UX 1.0
 #define FD_LY 0.0
-#define FD_UX 1.0
+#define FD_UY 1.0
 
 // functionality to evaluate Poisson PDE //
 
