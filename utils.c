@@ -39,6 +39,13 @@ void init_arr(int n, int m, double *x, double **x_ptr){
 		x_ptr[i] = &x[i*m];
 }
 
+void clear_arr(int n, int m, double **x){
+    int i, j;
+    for(i=0;i<n;i++)
+        for(j=0;j<m;j++)
+            x[i][j] = 0.0;
+}
+
 void init_range(double **unew, double **uold, double **f, int xs, int xe, int ys, int ye, int nx, int ny,
 	double (*lbound)(int, int, int, int),
 	double (*rbound)(int, int, int, int),
@@ -66,7 +73,7 @@ void init_range(double **unew, double **uold, double **f, int xs, int xe, int ys
 	// left boundary //
 	if(xs == 1){
 		//printf("lbound, xs = %d, xe = %d, ys = %d, ye = %d\n", xs, xe, ys, ye);
-		for(i=(ys-1);i<=(ye+1);i++){
+		for(i=ys;i<=ye;i++){
 			uold[0][i] = lbound(0,i,nx,ny);
 			unew[0][i] = lbound(0,i,nx,ny);
 		}
@@ -74,7 +81,7 @@ void init_range(double **unew, double **uold, double **f, int xs, int xe, int ys
 	// right boundary //
 	if(xe == nx){
 		//printf("rbound, xs = %d, xe = %d, ys = %d, ye = %d\n", xs, xe, ys, ye);
-		for(i=(ys-1);i<=(ye+1);i++){
+		for(i=ys;i<=ye;i++){
 			uold[nx+1][i] = rbound(nx+1,i,nx,ny);
 			unew[nx+1][i] = rbound(nx+1,i,nx,ny);
 		}
@@ -82,81 +89,63 @@ void init_range(double **unew, double **uold, double **f, int xs, int xe, int ys
 }
 
 void print_grid(double **u, int nx, int ny, int xs, int xe, int ys, int ye, int* coords, int *dims, MPI_Comm comm){
-	int i,j,k,l;
-
-	//printf("coords (%d,%d), xs = %d, xe = %d, ys = %d, ye = %d\n",coords[0],coords[1],xs,xe,ys,ye);
+	int i,j;
 	
-	for(i=0;i<dims[1];i++){
-		if(xs==1){
-			if(coords[1] == i){
-				if(ys==1)
-					printf("%lf ", u[0][0]);
-				for(j=ys;j<=ye;j++)
-					printf("%lf ", u[0][j]);
-				if(ye==ny)
-					printf("%lf\n", u[0][ny+1]);
-			}
-		}
-		//printf("coords (%d,%d), i = %d\n",coords[0],coords[1],i);
-		fflush(stdout);
-		usleep(500);
-		MPI_Barrier(comm);
-	}
-
-	
-	for(i=0;i<dims[1];i++){
-		if(xs==1){
-			if(coords[1] == i){
-				if(ys==1)
-					printf("%lf ", u[0][0]);
-				for(j=ys;j<=ye;j++)
-					printf("%lf ", u[0][j]);
-				if(ye==ny)
-					printf("%lf\n", u[0][ny+1]);
-			}
-		}
-		//printf("coords (%d,%d), i = %d\n",coords[0],coords[1],i);
-		fflush(stdout);
-		usleep(500);
-		MPI_Barrier(comm);
-	}
-	
-	for(l=0;l<dims[0];l++){
-		for(i=0;i<dims[1];i++){
-			if(coords[1] == i && coords[0] == l){
-				for(k=xs;k<xe;k++){
-					if(ys==1)
-						printf("%lf ", u[k][0]);
-					for(j=ys;j<=ye;j++)
-						printf("%lf ", u[k][j]);
-					if(ye==ny)
-						printf("%lf\n", u[k][ny+1]);
-					fflush(stdout);
-					usleep(500);
-				}
-			}
-			fflush(stdout);
-			usleep(500);
-			MPI_Barrier(comm);
-		}
-		//printf("coords (%d,%d), i = %d\n",coords[0],coords[1],i);
-		fflush(stdout);
-		usleep(500);
-		MPI_Barrier(comm);
-	}
-
-	for(i=0;i<dims[1];i++){
+    // printing top boundary //
+    for(i=0;i<dims[1];i++){
 		if(xe==nx){
 			if(coords[1] == i){
 				if(ys==1)
-					printf("%lf ", u[nx+1][0]);
+					printf("%lf ", u[nx+1][0]); 
 				for(j=ys;j<=ye;j++)
 					printf("%lf ", u[nx+1][j]);
 				if(ye==ny)
 					printf("%lf\n", u[nx+1][ny+1]);
-			}
+            }
 		}
-		//printf("coords (%d,%d), i = %d\n",coords[0],coords[1],i);
+		fflush(stdout);
+		usleep(500);
+		MPI_Barrier(comm);
+	}
+    
+    // printing main part of grid //
+    for(i=nx;i>0;i--){
+        print_row(u, nx, ny, i, xs, xe, ys, ye, coords, dims, comm);
+        MPI_Barrier(comm);
+    }
+    
+    // printing bottom boundary //	
+    for(i=0;i<dims[1];i++){
+		if(xs==1){
+			if(coords[1] == i){
+				if(ys==1)
+					printf("%lf ", u[0][0]);
+				for(j=ys;j<=ye;j++)
+					printf("%lf ", u[0][j]);
+				if(ye==ny)
+					printf("%lf\n", u[0][ny+1]);
+			}
+        }
+        fflush(stdout);
+        usleep(500);
+        MPI_Barrier(comm);
+    }
+}
+
+void print_row(double **u, int nx, int ny, int row, int xs, int xe, int ys, int ye, int* coords, int *dims, MPI_Comm comm){
+    int i,j;
+
+    for(i=0;i<dims[1];i++){
+		if(row>=xs && row <=xe){
+			if(coords[1] == i){
+				if(ys==1)
+					printf("%lf ", u[row][0]);
+				for(j=ys;j<=ye;j++)
+					printf("%lf ", u[row][j]);
+				if(ye==ny)
+					printf("%lf\n", u[row][ny+1]);
+		    }
+        }
 		fflush(stdout);
 		usleep(500);
 		MPI_Barrier(comm);
