@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "utils.h"
 
+// calculating dims[0] and dims[1] for Cart coordinates //
 void calc_dims(int nprocs, int* dims){
 	int root = (int)sqrt(nprocs);
 	while(nprocs % root != 0)
@@ -12,6 +13,7 @@ void calc_dims(int nprocs, int* dims){
 	dims[1] = root;
 }
 
+// 1d decomposition of n into size procs //
 int decomp1d(int n, int size, int rank, int *s, int *e){
     int nlocal, deficit;
 
@@ -26,6 +28,7 @@ int decomp1d(int n, int size, int rank, int *s, int *e){
     return MPI_SUCCESS;
 }
 
+// 2d decomposition of array into xprocs x yprocs 
 int decomp2d(int nx, int ny, int xprocs, int yprocs, int* coords, int *xs, int *xe, int *ys, int *ye){
     decomp1d(nx, xprocs, coords[0], xs, xe);
     decomp1d(ny, yprocs, coords[1], ys, ye);
@@ -33,12 +36,14 @@ int decomp2d(int nx, int ny, int xprocs, int yprocs, int* coords, int *xs, int *
     return MPI_SUCCESS;
 }
 
+// intialises array ptr //
 void init_arr(int n, int m, double *x, double **x_ptr){
 	int i;
 	for(i=0;i<n;i++)
 		x_ptr[i] = &x[i*m];
 }
 
+// clears array to set all vals to 0.0, to allow for further use before freeing //
 void clear_arr(int n, int m, double **x){
     int i, j;
     for(i=0;i<n;i++)
@@ -46,6 +51,7 @@ void clear_arr(int n, int m, double **x){
             x[i][j] = 0.0;
 }
 
+// intialises mesh with boundary conditions //
 void init_range(double **unew, double **uold, double **f, int xs, int xe, int ys, int ye, int nx, int ny,
 	double (*lbound)(int, int, int, int),
 	double (*rbound)(int, int, int, int),
@@ -88,6 +94,7 @@ void init_range(double **unew, double **uold, double **f, int xs, int xe, int ys
 	}
 }
 
+// prints mesh u //
 void print_grid(double **u, int nx, int ny, int xs, int xe, int ys, int ye, int* coords, int *dims, MPI_Comm comm){
 	int i,j;
 	
@@ -132,6 +139,7 @@ void print_grid(double **u, int nx, int ny, int xs, int xe, int ys, int ye, int*
     }
 }
 
+// prints row of mesh u //
 void print_row(double **u, int nx, int ny, int row, int xs, int xe, int ys, int ye, int* coords, int *dims, MPI_Comm comm){
     int i,j;
 
