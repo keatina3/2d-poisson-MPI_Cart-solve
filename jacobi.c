@@ -1,7 +1,7 @@
 #include "mpi.h"
 #include "jacobi.h"
 
-void exchange(double **x, int ys, int ye, int xs, int xe, MPI_Comm comm, int nbrleft, int nbrright, int nbrup, int nbrdown, MPI_Datatype coltype){
+void exchange(double **x, int xs, int xe, int ys, int ye, MPI_Comm comm, int nbrleft, int nbrright, int nbrup, int nbrdown, MPI_Datatype coltype){
 	
 	MPI_Sendrecv(&x[xe][ys], (ye-ys+1), MPI_DOUBLE, nbrright, 0, 
 			&x[xs-1][ys], (ye-ys+1), MPI_DOUBLE, nbrleft, 0, comm, MPI_STATUS_IGNORE);
@@ -16,7 +16,7 @@ void exchange(double **x, int ys, int ye, int xs, int xe, MPI_Comm comm, int nbr
 			&x[xs][ye+1], 1, coltype, nbrup, 0, comm, MPI_STATUS_IGNORE);
 }
 
-void solve(double **uold, double **f, double **unew, int ys, int ye, int xs, int xe, int nx){
+void solve(double **uold, double **f, double **unew, int xs, int xe, int ys, int ye, int nx){
 	double h;
 	int i,j;
 
@@ -31,11 +31,13 @@ double griddiff(double **x, double **y, int xs, int xe, int ys, int ye){
 	double sum;
 	double tmp;
 	int i,j;
+	
+	sum = 0.0;
 
 	for(i=xs;i<=xe;i++){
 		for(j=ys;j<=ye;j++){
 			tmp = (x[i][j] - y[i][j]);
-			sum = sum + tmp*tmp;
+			sum += tmp*tmp;
 		}
 	}
 	return sum;
