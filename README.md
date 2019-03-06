@@ -2,7 +2,7 @@
 <header>
 
 <div class="clearfix text-formatted field field--name-body field--type-text-with-summary field--label-hidden field__item">
-<h2> Poisson Eqn: 2D Decomposition<\h2>
+<h2> Poisson Eqn: 2D Decomposition</h2>
 <p>A 2D (or higher) decomposition is often used, along with derived datatypes and additional communicators to solve finite difference and finite element problems.</p>
 
 <p>Your task is to adapt the heat equation code that we have previously developed to solve the system in 2 dimensions. You will need to demonstrate the following MPI feature</p>
